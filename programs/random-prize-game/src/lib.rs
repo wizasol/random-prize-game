@@ -231,15 +231,16 @@ pub mod random_prize_game {
 }
 
 #[derive(Accounts)]
-#[instruction(pool_nonce: u8, vault_nonce: u8)]
 pub struct Initialize<'info> {
+    #[account(mut)]
     authority: Signer<'info>,
     #[account(
         seeds = [
             pool.to_account_info().key.as_ref()
         ],
-        bump = pool_nonce,
+        bump,
     )]
+    /// CHECK: This is contract signer. No need to check
     pool_signer: UncheckedAccount<'info>,
     #[account(zero)]
     pool: Box<Account<'info, Pool>>,
@@ -250,7 +251,7 @@ pub struct Initialize<'info> {
             pool.to_account_info().key.as_ref(),
             "prize".as_bytes(),
         ],
-        bump = vault_nonce,
+        bump,
         space = 10240,
     )]
     prize: Box<Account<'info, Prize>>,
@@ -259,8 +260,9 @@ pub struct Initialize<'info> {
             pool.to_account_info().key.as_ref(),
             "sol_vault".as_bytes(),
         ],
-        bump = vault_nonce,
+        bump,
     )]
+    /// CHECK: This is sol vault. No need to check
     sol_vault: UncheckedAccount<'info>,
     reward_mint: Box<Account<'info, Mint>>,
     #[account(
@@ -302,8 +304,9 @@ pub struct AddPrize0<'info> {
             pool.to_account_info().key.as_ref(),
             "sol_vault".as_bytes(),
         ],
-        bump = pool.vault_nonce,
+        bump,
     )]
+    /// CHECK: This is sol vault. No need to check
     sol_vault: UncheckedAccount<'info>,
     #[account(mut)]
     depositor: AccountInfo<'info>,
@@ -326,8 +329,9 @@ pub struct AddPrize1<'info> {
         seeds = [
             pool.to_account_info().key.as_ref()
         ],
-        bump = pool.nonce,
+        bump,
     )]
+    /// CHECK: This is pool signer. No need to check
     pool_signer: UncheckedAccount<'info>,
     #[account(
         mut,
@@ -362,8 +366,9 @@ pub struct AddPrize2<'info> {
         seeds = [
             pool.to_account_info().key.as_ref()
         ],
-        bump = pool.nonce,
+        bump,
     )]
+    /// CHECK: This is pool signer. No need to check
     pool_signer: UncheckedAccount<'info>,
     #[account(
         mut,
@@ -396,8 +401,9 @@ pub struct Play<'info> {
             pool.to_account_info().key.as_ref(),
             "sol_vault".as_bytes(),
         ],
-        bump = pool.vault_nonce,
+        bump,
     )]
+    /// CHECK: This is sol vault. No need to check
     sol_vault: UncheckedAccount<'info>,
     owner: Signer<'info>,
     system_program: Program<'info, System>,
@@ -410,8 +416,9 @@ pub struct GetPrize<'info> {
         seeds = [
             pool.to_account_info().key.as_ref()
         ],
-        bump = pool.nonce,
+        bump,
     )]
+    /// CHECK: This is pool signer. No need to check
     pool_signer: UncheckedAccount<'info>,
     #[account(
         mut,
@@ -445,9 +452,10 @@ pub struct CreateUser<'info> {
             owner.key.as_ref(), 
             pool.to_account_info().key.as_ref(),
         ],
-        bump = nonce,
+        bump,
     )]
     user: Box<Account<'info, User>>,
+    #[account(mut)]
     owner: Signer<'info>,
     system_program: Program<'info, System>,
 }
