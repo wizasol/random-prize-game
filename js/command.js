@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require("os");
 
-const idl = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../target/idl/nft_verify.json')));
+const idl = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../target/idl/random_prize_game.json')));
 const programID = new anchor.web3.PublicKey(idl.metadata.address);
 
 const walletKeyData = JSON.parse(fs.readFileSync(os.homedir() + '/.config/solana/id.json'));
