@@ -258,6 +258,33 @@ pub mod random_prize_game {
         user.win = false;
         Ok(())
     }
+
+    pub fn get_prize2(ctx: Context<GetPrize2>) -> ProgramResult {
+        let pool = &ctx.accounts.pool;
+        let user = &mut ctx.accounts.user;
+        if user.win == false {
+            return Err(ErrorCode::NotWinner.into());
+        }
+        let seeds = &[
+            pool.to_account_info().key.as_ref(),
+            &[pool.nonce],
+        ];
+        let pool_signer = &[&seeds[..]];
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.from.to_account_info(),
+                to: ctx.accounts.to.to_account_info(),
+                authority: ctx.accounts.pool_signer.to_account_info(),
+            },
+            pool_signer,
+        );
+
+        token::transfer(cpi_ctx, user.prize_amount)?;
+
+        user.win = false;
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -460,11 +487,13 @@ pub struct GetPrize0<'info> {
         mut,
         constraint = from.key() == pool.sol_vault,
     )]
+    /// CHECK: This is sol vault. No need to check
     from: AccountInfo<'info>,
     #[account(
         mut,
         constraint = to.key() == owner.key(),
     )]
+    /// CHECK: This is wallet address. No need to check
     to: AccountInfo<'info>,
     owner: Signer<'info>,
     token_program: Program<'info, Token>,
@@ -473,6 +502,38 @@ pub struct GetPrize0<'info> {
 
 #[derive(Accounts)]
 pub struct GetPrize1<'info> {
+    pool: Box<Account<'info, Pool>>,
+    #[account(
+        seeds = [
+            pool.to_account_info().key.as_ref()
+        ],
+        bump,
+    )]
+    /// CHECK: This is pool signer. No need to check
+    pool_signer: UncheckedAccount<'info>,
+    #[account(
+        mut,
+        constraint = user.owner == *owner.key
+    )]
+    user: Box<Account<'info, User>>,
+    #[account(
+        mut,
+        constraint = from.owner == pool_signer.key(),
+        constraint = from.mint == to.mint,
+    )]
+    from: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        constraint = to.owner == owner.key(),
+    )]
+    to: Box<Account<'info, TokenAccount>>,
+    owner: Signer<'info>,
+    token_program: Program<'info, Token>,
+    system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct GetPrize2<'info> {
     pool: Box<Account<'info, Pool>>,
     #[account(
         seeds = [
