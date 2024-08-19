@@ -95,7 +95,7 @@ const initializePool = async () => {
         poolSigner: poolSigner,
         solVault: vault,
         prize: prize,
-        rewardMint: rewardMint.publicKey,
+        rewardMint: rewardMint,
         rewardVault: rewardPoolVault,
         owner: provider.wallet.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID,
