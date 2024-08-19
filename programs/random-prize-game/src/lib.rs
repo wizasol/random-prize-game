@@ -163,6 +163,7 @@ pub mod random_prize_game {
 
                 user.prize_amount = prize.prize1[prize_index as usize];
                 user.prize_token = pool.reward_mint;
+                user.prize_type = 1;
                 user.win = true;
                 prize.prize1.remove(prize_index.try_into().unwrap());
             }
@@ -179,6 +180,7 @@ pub mod random_prize_game {
 
                 user.prize_amount = prize.prize0[prize_index as usize];
                 user.prize_token = *ctx.accounts.system_program.key;
+                user.prize_type = 0;
                 user.win = true;
                 prize.prize0.remove(prize_index.try_into().unwrap());
             }
@@ -193,6 +195,7 @@ pub mod random_prize_game {
                 }
 
                 user.prize_amount = 1 as u64;
+                user.prize_type = 2;
                 user.prize_token = prize.prize2[prize_index as usize];
                 user.win = true;
                 prize.prize2.remove(prize_index.try_into().unwrap());
@@ -492,6 +495,7 @@ pub struct User {
     pub nonce: u8,
     pub prize_amount: u64,
     pub prize_token: Pubkey,
+    pub prize_type: u8,
     pub win: bool,
     pub owner: Pubkey
 }
