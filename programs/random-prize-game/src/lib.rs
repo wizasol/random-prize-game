@@ -205,7 +205,34 @@ pub mod random_prize_game {
         Ok(())
     }
 
-    pub fn get_prize(ctx: Context<GetPrize>, amount: u64) -> ProgramResult {
+    pub fn get_prize0(ctx: Context<GetPrize0>) -> ProgramResult {
+        let pool = &ctx.accounts.pool;
+        let user = &mut ctx.accounts.user;
+        if user.win == false {
+            return Err(ErrorCode::NotWinner.into());
+        }
+        let seeds = &[
+            pool.to_account_info().key.as_ref(),
+            &[pool.nonce],
+        ];
+        let pool_signer = &[&seeds[..]];
+        anchor_lang::solana_program::program::invoke_signed(
+                                &anchor_lang::solana_program::system_instruction::transfer(
+                                    &ctx.accounts.from.key(), 
+                                    &ctx.accounts.to.key(), 
+                                    user.prize_amount
+                                ),
+                                &[
+                                    ctx.accounts.from.to_account_info(),
+                                    ctx.accounts.to.to_account_info(),
+                                ],
+                                pool_signer,
+                            )?;
+        user.win = false;
+        Ok(())
+    }
+
+    pub fn get_prize1(ctx: Context<GetPrize1>) -> ProgramResult {
         let pool = &ctx.accounts.pool;
         let user = &mut ctx.accounts.user;
         if user.win == false {
@@ -226,7 +253,7 @@ pub mod random_prize_game {
             pool_signer,
         );
 
-        token::transfer(cpi_ctx, amount)?;
+        token::transfer(cpi_ctx, user.prize_amount)?;
 
         user.win = false;
         Ok(())
@@ -414,7 +441,38 @@ pub struct Play<'info> {
 }
 
 #[derive(Accounts)]
-pub struct GetPrize<'info> {
+pub struct GetPrize0<'info> {
+    pool: Box<Account<'info, Pool>>,
+    #[account(
+        seeds = [
+            pool.to_account_info().key.as_ref()
+        ],
+        bump,
+    )]
+    /// CHECK: This is pool signer. No need to check
+    pool_signer: UncheckedAccount<'info>,
+    #[account(
+        mut,
+        constraint = user.owner == *owner.key
+    )]
+    user: Box<Account<'info, User>>,
+    #[account(
+        mut,
+        constraint = from.key() == pool.sol_vault,
+    )]
+    from: AccountInfo<'info>,
+    #[account(
+        mut,
+        constraint = to.key() == owner.key(),
+    )]
+    to: AccountInfo<'info>,
+    owner: Signer<'info>,
+    token_program: Program<'info, Token>,
+    system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct GetPrize1<'info> {
     pool: Box<Account<'info, Pool>>,
     #[account(
         seeds = [
