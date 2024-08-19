@@ -309,6 +309,7 @@ pub struct AddPrize0<'info> {
     /// CHECK: This is sol vault. No need to check
     sol_vault: UncheckedAccount<'info>,
     #[account(mut)]
+    /// CHECK: This is depositor address. No need to check
     depositor: AccountInfo<'info>,
     owner: Signer<'info>,
     system_program: Program<'info, System>,
