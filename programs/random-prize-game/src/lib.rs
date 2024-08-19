@@ -41,6 +41,7 @@ pub mod random_prize_game {
     }
 
     pub fn create_user(ctx: Context<CreateUser>, nonce: u8) -> ProgramResult {
+        ctx.accounts.user.owner = ctx.accounts.owner.key();
         ctx.accounts.user.nonce = nonce;
         ctx.accounts.user.win = false;
         Ok(())
@@ -446,7 +447,14 @@ pub struct AddPrize2<'info> {
 pub struct Play<'info> {
     #[account(mut)]
     pool: Box<Account<'info, Pool>>,
-    #[account(mut)]
+    #[account(
+        mut,
+        seeds = [
+            pool.to_account_info().key.as_ref(),
+            "prize".as_bytes(),
+        ],
+        bump,
+    )]
     prize: Box<Account<'info, Prize>>,
     #[account(
         mut,
