@@ -1,11 +1,13 @@
 [programs.localnet]
 random_prize_game = "2u6cS6xYLNYrLeBxvwSUhBLVzEPNHety2UK8AvAXeybj"
+[programs.devnet]
+random_prize_game = "2u6cS6xYLNYrLeBxvwSUhBLVzEPNHety2UK8AvAXeybj"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/wstar/.config/solana/id.json"
 
 [scripts]
